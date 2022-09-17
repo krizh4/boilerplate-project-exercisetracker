@@ -39,7 +39,10 @@ const userObjectSchema = new Schema({
 
 UserObject = mongoose.model('ExersiseTrackerUsers', userObjectSchema);
 
-app.post('/api/users', (req, res) => {
+app.get('/api/users', async (req, res) => {
+  var a = await UserObject.find();
+  res.json(a);
+}).post('/api/users', (req, res) => {
   UserObject({
     username: req.body.username
   }).save((err, data) => {
@@ -89,4 +92,5 @@ app.get('/api/users/:id/logs', (req, res) => {
 
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)
+  console.log('visit your app: ' + 'http://localhost:' + listener.address().port);
 })
