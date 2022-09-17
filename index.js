@@ -28,7 +28,7 @@ const Schema = mongoose.Schema;
 const exerciseObjectSchema = new Schema({
   description: {type: String},
   duration: {type: Number},
-  date: {type: String}
+  date: {type: String},
 });
 
 const userObjectSchema = new Schema({
@@ -61,7 +61,7 @@ app.post('/api/users/:id/exercises', (req, res) => {
     user.log.push({
       description: req.body.description,
       duration: req.body.duration,
-      date: new Date(idate).toDateString()
+      date: new Date(idate).toDateString(),
     });
     user.save((err, data) => {
       if (err) return console.log(err);
@@ -77,8 +77,17 @@ app.post('/api/users/:id/exercises', (req, res) => {
 });
 
 app.get('/api/users/:id/logs', (req, res) => {
+  var from = req.query.from;
+  var to = req.query.to;
+  var limit = req.query.limit;
+
   UserObject.findById({_id: req.params.id}, (err, user) => {
     if (err) return console.log(err);
+    user.log.sort((a,b) => new Date(b.date) - new Date(a.date));
+    user.log = (from) ? user.log.filter((item) => new Date(item.date) >= new Date(from)) : user.log;
+    user.log = (to) ? user.log.filter((item) => new Date(item.date) <= new Date(to)) : user.log;
+    user.log = (limit) ? user.log.slice(0, limit) : user.log;
+
     res.json({
       _id: user._id,
       username: user.username,
